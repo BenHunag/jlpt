@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>日檢階梯</title>
+<meta name="theme-color" content="#2c4c8c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="日檢階梯">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}html{-webkit-text-size-adjust:100%}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* Layout: 左側「階梯」列出每一段，右側是該段的單字・文法・漢字・測驗；手機時上下堆疊 */
+:root{
+  --bg:#f5f7fa; --surface:#ffffff; --ink:#1c2333; --muted:#5a6375; --line:#dde2ea;
+  --ai:#2c4c8c; --ai-soft:#e5ecf8; --moss:#4a7a36; --moss-soft:#e6f1df; --shu:#b4452c; --shu-soft:#f8e6e1;
+  --grid:rgba(44,76,140,.07);
+  --f-display:"Shippori Mincho B1","Noto Serif JP",serif;
+  --f-jp:"Zen Kaku Gothic New","Noto Sans TC",system-ui,sans-serif;
+  --f-zh:"Noto Sans TC","Zen Kaku Gothic New",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11141b; --surface:#191e28; --ink:#e6e9ef; --muted:#9aa3b3; --line:#2a313f;
+  --ai:#93b2ee; --ai-soft:#1e2a42; --moss:#8fc472; --moss-soft:#1f2e1b; --shu:#ec8e76; --shu-soft:#3a221c;
+  --grid:rgba(147,178,238,.06); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11141b; --surface:#191e28; --ink:#e6e9ef; --muted:#9aa3b3; --line:#2a313f;
+  --ai:#93b2ee; --ai-soft:#1e2a42; --moss:#8fc472; --moss-soft:#1f2e1b; --shu:#ec8e76; --shu-soft:#3a221c;
+  --grid:rgba(147,178,238,.06); color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-zh);font-size:15px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.jp{font-family:var(--f-jp)}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:2px solid var(--ai);outline-offset:2px}
+rt{font-size:.5em;color:var(--muted);font-family:var(--f-jp)}
+
+.top{border-bottom:1px solid var(--line);
+  background-color:var(--surface);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:28px 28px}
+.top-in,.layout{max-width:1160px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top-in{padding-block:22px 18px;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+.brand h1{margin:0;font-family:var(--f-display);font-weight:800;font-size:clamp(28px,5vw,38px);letter-spacing:.06em;line-height:1.1}
+.brand p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:7px 14px;border-radius:7px;font-weight:500;font-size:14px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--ai);color:var(--surface)}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:10px;padding:7px 12px;background:var(--surface)}
+.toggle input{accent-color:var(--ai);margin:0}
+
+.layout{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;padding-block:26px 60px}
+@media (max-width:860px){.layout{grid-template-columns:minmax(0,1fr)}}
+aside{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+.lv{display:flex;gap:14px;align-items:center}
+.lv-badge{flex:none;width:58px;height:58px;border-radius:50%;border:2px solid var(--ai);color:var(--ai);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:22px}
+.lv h2{margin:0;font-size:18px}
+.lv p{margin:2px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0}
+.facts div{border-top:1px solid var(--line);padding-top:8px}
+.facts dt{font-size:11px;color:var(--muted);letter-spacing:.08em}
+.facts dd{margin:0;font-weight:700;font-variant-numeric:tabular-nums;font-size:14px}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar span{display:block;height:100%;background:var(--moss);transition:width .4s}
+.bar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px;font-variant-numeric:tabular-nums}
+.note{font-size:11.5px;color:var(--muted);margin:0}
+
+.ladder{list-style:none;margin:0;padding:0;position:relative}
+.ladder::before{content:"";position:absolute;left:15px;top:18px;bottom:18px;width:2px;background:var(--line)}
+.ladder li{position:relative}
+.step{width:100%;display:grid;grid-template-columns:32px minmax(0,1fr) auto;align-items:center;gap:12px;text-align:left;background:none;border:0;padding:9px 8px 9px 0;border-radius:10px}
+.step:hover .step-t{color:var(--ai)}
+.node{width:32px;height:32px;border-radius:50%;background:var(--surface);border:2px solid var(--line);display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);position:relative;font-variant-numeric:tabular-nums}
+.step.done .node{background:var(--moss);border-color:var(--moss);color:var(--surface)}
+.step.next .node{border-color:var(--ai);color:var(--ai)}
+.step[aria-current="true"]{background:var(--ai-soft)}
+.step-n{font-size:11px;color:var(--muted);letter-spacing:.06em;display:block}
+.step-t{font-weight:500;display:block;line-height:1.35}
+.chip{font-size:11px;padding:2px 8px;border-radius:99px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chip.ok{background:var(--moss-soft);color:var(--moss)}
+.chip.try{background:var(--ai-soft);color:var(--ai)}
+.chip.new{color:var(--muted)}
+
+.plan{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--surface);font-size:13px}
+.plan h3{margin:0 0 6px;font-size:13px;letter-spacing:.08em;color:var(--muted);font-weight:500}
+.plan ol{margin:0;padding-left:1.2em}
+.plan li{margin:2px 0}
+
+main{min-width:0}
+.eyebrow{margin:0;font-size:12px;letter-spacing:.12em;color:var(--ai);font-weight:500}
+.unit-head h2{margin:4px 0 4px;font-family:var(--f-display);font-weight:800;font-size:clamp(24px,4vw,32px);text-wrap:balance;line-height:1.25}
+.unit-head p.desc{margin:0;color:var(--muted);max-width:62ch}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:22px 0 20px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ai)}
+.tabs small{font-size:11px;color:var(--muted);margin-left:4px;font-variant-numeric:tabular-nums}
+
+.panel-top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:var(--muted)}
+.vlist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.vrow{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) auto auto;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
+.vrow:first-child{border-top:0}
+.vrow.known{background:var(--moss-soft)}
+.vw{font-family:var(--f-jp);font-size:22px;font-weight:500;line-height:1.5}
+.vw ruby{ruby-position:over}
+.vm{color:var(--ink)}
+.vr{font-size:12px;color:var(--muted);font-family:var(--f-jp)}
+@media (max-width:520px){.vrow{grid-template-columns:minmax(0,1fr) auto auto}.vm{grid-column:1;grid-row:2}}
+.icon-btn{border:1px solid var(--line);background:var(--surface);border-radius:8px;width:36px;height:36px;display:grid;place-items:center;color:var(--ai)}
+.icon-btn:hover{background:var(--ai-soft)}
+.icon-btn svg{width:18px;height:18px}
+.know{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--muted);white-space:nowrap}
+.know[aria-pressed="true"]{background:var(--moss);border-color:var(--moss);color:var(--surface)}
+
+.gcards{display:flex;flex-direction:column;gap:14px}
+.gcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.gp{font-family:var(--f-jp);font-size:19px;font-weight:700;color:var(--ai)}
+.gm{color:var(--muted);font-size:14px;margin:2px 0 10px}
+.gex{display:flex;gap:10px;align-items:flex-start;border-top:1px dashed var(--line);padding-top:10px}
+.gex .jp{font-size:18px;line-height:2}
+.gex .zh{color:var(--muted);font-size:13.5px}
+
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.kc{font-family:var(--f-display);font-weight:800;font-size:54px;line-height:1;align-self:flex-start}
+.krow{display:grid;grid-template-columns:3.2em minmax(0,1fr);font-size:13px;gap:4px}
+.krow b{font-weight:500;color:var(--muted);font-size:11.5px;letter-spacing:.06em;padding-top:2px}
+.krow span{font-family:var(--f-jp)}
+.kex{border-top:1px solid var(--line);padding-top:8px;margin-top:2px;font-size:13px}
+.kex .jp{font-size:17px}
+
+.quiz{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px clamp(16px,3vw,28px)}
+.qmeta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;margin-bottom:8px}
+.qprog{height:4px;background:var(--line);border-radius:2px;overflow:hidden;margin-bottom:20px}
+.qprog span{display:block;height:100%;background:var(--ai);transition:width .3s}
+.qkind{font-size:12px;color:var(--ai);letter-spacing:.1em;margin:0 0 6px}
+.qprompt{font-size:clamp(22px,4vw,30px);font-family:var(--f-jp);font-weight:500;margin:0 0 6px;line-height:1.9;overflow-wrap:anywhere}
+.qprompt.zhp{font-family:var(--f-zh);font-size:clamp(20px,3.4vw,26px)}
+.qhint{color:var(--muted);font-size:14px;margin:0 0 18px}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.opts{grid-template-columns:minmax(0,1fr)}}
+.opt{text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:12px 14px;font-size:16px;line-height:1.7;min-height:52px}
+.opt.jp{font-size:18px}
+.opt:hover:not(:disabled){border-color:var(--ai)}
+.opt:disabled{cursor:default}
+.opt.right{background:var(--moss-soft);border-color:var(--moss);color:var(--moss);font-weight:700}
+.opt.wrong{background:var(--shu-soft);border-color:var(--shu);color:var(--shu)}
+.feedback{margin-top:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.feedback p{margin:0;font-size:14px}
+.feedback .good{color:var(--moss);font-weight:700}
+.feedback .bad{color:var(--shu);font-weight:700}
+.btn{border:0;background:var(--ai);color:var(--surface);padding:10px 20px;border-radius:10px;font-weight:700}
+.btn.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+.result{text-align:center;padding:10px 0}
+.score{font-family:var(--f-display);font-weight:800;font-size:64px;line-height:1;font-variant-numeric:tabular-nums}
+.score small{font-size:22px;color:var(--muted)}
+.result .verdict{font-weight:700;margin:10px 0 4px}
+.result .verdict.ok{color:var(--moss)} .result .verdict.no{color:var(--shu)}
+.result p{color:var(--muted);margin:0 0 18px}
+.result .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.intro h3{margin:0 0 6px;font-size:18px}
+.intro ul{margin:0 0 18px;padding-left:1.2em;color:var(--muted)}
+
+.kana-chart{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-width:520px}
+.kana{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;display:flex;flex-direction:column;align-items:center}
+.kana:hover{border-color:var(--ai)}
+.kana .k{font-family:var(--f-jp);font-size:26px;line-height:1.2}
+.kana .r{font-size:11px;color:var(--muted);letter-spacing:.04em}
+.kana.blank{visibility:hidden}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <h1 class="jp">日檢階梯</h1>
+      <p>從五十音出發，一段一段爬到 JLPT N3</p>
+    </div>
+    <div class="controls">
+      <div class="seg" role="group" aria-label="選擇級數" id="levelSeg">
+        <button data-level="kana">假名</button>
+        <button data-level="n5">N5</button>
+        <button data-level="n4">N4</button>
+        <button data-level="n3">N3</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="furi" checked> 顯示假名注音</label>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside id="aside"></aside>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ---------- 內容資料 ---------- */
+// 單字 v: [寫法, 讀音, 中文]；文法 g；漢字 k: [字, 音讀, 訓讀, 意思, 例詞, 例詞讀音, 例詞意思]
+// 句子中的 漢字{かな} 會顯示成注音
+const LEVELS={
+  n5:{name:'N5',title:'入門',desc:'能讀懂以假名和基本漢字寫成的簡單句子。',words:'約 800',kanji:'約 100',pass:'80/180',units:[
+    {id:'n5-1',t:'自我介紹',d:'學會「我是〜」「我不是〜」和問句，就能做最簡單的自我介紹。',
+     v:[['私','わたし','我'],['あなた','あなた','你'],['先生','せんせい','老師'],['学生','がくせい','學生'],['友達','ともだち','朋友'],['名前','なまえ','名字'],['日本','にほん','日本'],['会社員','かいしゃいん','上班族']],
+     g:[{p:'AはBです',m:'A 是 B（肯定句）',ex:'私{わたし}は学生{がくせい}です。',zh:'我是學生。',q:'私{わたし}（　）学生{がくせい}です。',t:'我是學生。',a:'は',d:['を','に','で']},
+        {p:'AはBではありません',m:'A 不是 B（否定句）',ex:'私{わたし}は先生{せんせい}ではありません。',zh:'我不是老師。',q:'田中{たなか}さんは先生{せんせい}（　）。',t:'田中先生不是老師。',a:'ではありません',d:['がありません','をしません','にいません']},
+        {p:'〜か',m:'放在句尾變成疑問句',ex:'あなたは日本人{にほんじん}ですか。',zh:'你是日本人嗎？',q:'これは本{ほん}です（　）。',t:'這是書嗎？',a:'か',d:['を','は','の']}],
+     k:[['人','ジン・ニン','ひと','人','日本人','にほんじん','日本人'],['日','ニチ・ジツ','ひ・か','日、太陽','毎日','まいにち','每天'],['本','ホン','もと','書、根本','日本','にほん','日本'],['学','ガク','まな(ぶ)','學習','学生','がくせい','學生'],['生','セイ・ショウ','い(きる)・う(まれる)','生命、出生','先生','せんせい','老師']]},
+    {id:'n5-2',t:'這個・那個',d:'用こ・そ・あ・ど指東西，並學會「的」和「也」。',
+     v:[['これ','これ','這個'],['それ','それ','那個（靠近對方）'],['あれ','あれ','那個（離兩人都遠）'],['どこ','どこ','哪裡'],['本','ほん','書'],['鞄','かばん','包包'],['傘','かさ','雨傘'],['時計','とけい','時鐘、手錶']],
+     g:[{p:'これ／それ／あれは〜です',m:'這／那／那（遠）是〜',ex:'それは私{わたし}の傘{かさ}です。',zh:'那是我的傘。',q:'（　）は時計{とけい}です。',t:'這是時鐘。',a:'これ',d:['それ','あれ','どれ']},
+        {p:'AのB',m:'A 的 B（所屬）',ex:'これは私{わたし}の本{ほん}です。',zh:'這是我的書。',q:'これは先生{せんせい}（　）鞄{かばん}です。',t:'這是老師的包包。',a:'の',d:['は','を','が']},
+        {p:'〜も',m:'也〜',ex:'それも私{わたし}の本{ほん}です。',zh:'那也是我的書。',q:'私{わたし}（　）学生{がくせい}です。',t:'我也是學生。',a:'も',d:['の','を','で']}],
+     k:[['山','サン','やま','山','富士山','ふじさん','富士山'],['川','セン','かわ','河川','小川','おがわ','小河'],['田','デン','た','田','田中','たなか','田中（姓氏）'],['口','コウ','くち','嘴、出入口','入口','いりぐち','入口'],['目','モク','め','眼睛','一つ目','ひとつめ','第一個']]},
+    {id:'n5-3',t:'數字與時間',d:'說出時間、從幾點到幾點，以及在某個時間做某事。',
+     v:[['一つ','ひとつ','一個'],['何時','なんじ','幾點'],['今','いま','現在'],['毎日','まいにち','每天'],['朝','あさ','早上'],['晩','ばん','晚上'],['月曜日','げつようび','星期一'],['円','えん','日圓']],
+     g:[{p:'〜時〜分です',m:'〜點〜分',ex:'今{いま}は三時{さんじ}十分{じゅっぷん}です。',zh:'現在是三點十分。',q:'今{いま}は七（　）です。',t:'現在是七點。',a:'時{じ}',d:['分{ふん}','円{えん}','日{にち}']},
+        {p:'〜から〜まで',m:'從〜到〜',ex:'九時{くじ}から五時{ごじ}まで働{はたら}きます。',zh:'從九點工作到五點。',q:'月曜日{げつようび}（　）金曜日{きんようび}まで働{はたら}きます。',t:'從星期一工作到星期五。',a:'から',d:['まで','に','へ']},
+        {p:'時間＋に',m:'在某個時間點（做某事）',ex:'毎朝{まいあさ}七時{しちじ}に起{お}きます。',zh:'每天早上七點起床。',q:'十時{じゅうじ}（　）寝{ね}ます。',t:'十點睡覺。',a:'に',d:['を','が','で']}],
+     k:[['一','イチ','ひと(つ)','一','一つ','ひとつ','一個'],['二','ニ','ふた(つ)','二','二人','ふたり','兩個人'],['三','サン','みっ(つ)','三','三時','さんじ','三點'],['十','ジュウ','とお','十','十日','とおか','十號、十天'],['円','エン','まる(い)','日圓、圓','百円','ひゃくえん','一百日圓']]},
+    {id:'n5-4',t:'每天做的事',d:'動詞的ます形：做、不做、做了，以及「を」和「へ」。',
+     v:[['起きる','おきる','起床'],['寝る','ねる','睡覺'],['食べる','たべる','吃'],['飲む','のむ','喝'],['行く','いく','去'],['来る','くる','來'],['見る','みる','看'],['買う','かう','買']],
+     g:[{p:'〜ます／〜ません',m:'（禮貌）做／不做',ex:'毎朝{まいあさ}コーヒーを飲{の}みます。',zh:'每天早上喝咖啡。',q:'私{わたし}はお酒{さけ}を飲{の}み（　）。',t:'我不喝酒。',a:'ません',d:['ます','ました','たい']},
+        {p:'〜ました／〜ませんでした',m:'（禮貌）做了／沒做',ex:'昨日{きのう}映画{えいが}を見{み}ました。',zh:'昨天看了電影。',q:'昨日{きのう}、パンを食{た}べ（　）。',t:'昨天吃了麵包。',a:'ました',d:['ます','ません','たい']},
+        {p:'〜を＋動詞',m:'標示動作的對象',ex:'毎日{まいにち}パンを食{た}べます。',zh:'每天吃麵包。',q:'水{みず}（　）飲{の}みます。',t:'喝水。',a:'を',d:['に','は','へ']},
+        {p:'場所＋へ行きます',m:'往〜去（方向）',ex:'明日{あした}、学校{がっこう}へ行{い}きます。',zh:'明天去學校。',q:'東京{とうきょう}（　）行{い}きます。',t:'去東京。',a:'へ',d:['を','で','が']}],
+     k:[['食','ショク','た(べる)','吃','食事','しょくじ','用餐'],['飲','イン','の(む)','喝','飲み物','のみもの','飲料'],['行','コウ','い(く)','去','銀行','ぎんこう','銀行'],['来','ライ','く(る)','來','来年','らいねん','明年'],['見','ケン','み(る)','看','花見','はなみ','賞花']]},
+    {id:'n5-5',t:'形容東西',d:'い形容詞和な形容詞的用法與否定。',
+     v:[['高い','たかい','高、貴'],['安い','やすい','便宜'],['大きい','おおきい','大'],['小さい','ちいさい','小'],['新しい','あたらしい','新'],['古い','ふるい','舊'],['静か','しずか','安靜'],['元気','げんき','有精神']],
+     g:[{p:'い形容詞＋です',m:'描述性質（い結尾）',ex:'この鞄{かばん}は高{たか}いです。',zh:'這個包包很貴。',q:'この時計{とけい}は（　）です。',t:'這支錶很便宜。',a:'安{やす}い',d:['高{たか}い','古{ふる}い','静{しず}か']},
+        {p:'な形容詞＋な＋名詞',m:'な形容詞接名詞時要加な',ex:'ここは静{しず}かな町{まち}です。',zh:'這裡是安靜的城鎮。',q:'静{しず}か（　）部屋{へや}です。',t:'安靜的房間。',a:'な',d:['い','の','を']},
+        {p:'〜くないです',m:'い形容詞的否定',ex:'この本{ほん}は高{たか}くないです。',zh:'這本書不貴。',q:'今日{きょう}は寒{さむ}（　）です。',t:'今天不冷。',a:'くない',d:['いない','じゃない','かった']}],
+     k:[['高','コウ','たか(い)','高、貴','高校','こうこう','高中'],['安','アン','やす(い)','便宜、安定','安心','あんしん','安心'],['新','シン','あたら(しい)','新','新聞','しんぶん','報紙'],['古','コ','ふる(い)','舊','中古','ちゅうこ','二手'],['気','キ・ケ','—','氣','電気','でんき','電燈、電力']]},
+    {id:'n5-6',t:'在哪裡・想做什麼',d:'用あります／います說「有」，用〜たい說「想要」。',
+     v:[['上','うえ','上面'],['下','した','下面'],['中','なか','裡面'],['前','まえ','前面'],['後ろ','うしろ','後面'],['駅','えき','車站'],['部屋','へや','房間'],['猫','ねこ','貓']],
+     g:[{p:'〜に〜があります',m:'（某處）有〜（無生命）',ex:'机{つくえ}の上{うえ}に本{ほん}があります。',zh:'桌上有書。',q:'駅{えき}の前{まえ}に銀行{ぎんこう}が（　）。',t:'車站前面有銀行。',a:'あります',d:['います','です','なります']},
+        {p:'〜に〜がいます',m:'（某處）有〜（人、動物）',ex:'部屋{へや}に猫{ねこ}がいます。',zh:'房間裡有貓。',q:'公園{こうえん}に子供{こども}が（　）。',t:'公園裡有小孩。',a:'います',d:['あります','です','きます']},
+        {p:'〜たいです',m:'想要做〜',ex:'日本{にほん}へ行{い}きたいです。',zh:'我想去日本。',q:'寿司{すし}が食{た}べ（　）です。',t:'我想吃壽司。',a:'たい',d:['ない','ます','た']}],
+     k:[['上','ジョウ','うえ・あ(がる)','上','上手','じょうず','擅長'],['下','カ・ゲ','した・さ(がる)','下','地下鉄','ちかてつ','地下鐵'],['中','チュウ','なか','中、裡面','中国','ちゅうごく','中國'],['前','ゼン','まえ','前','午前','ごぜん','上午'],['後','ゴ・コウ','うし(ろ)・あと','後','午後','ごご','下午']]}
+  ]},
+  n4:{name:'N4',title:'基礎',desc:'能聽懂、讀懂日常生活中的基本日語。',words:'約 1,500',kanji:'約 300',pass:'90/180',units:[
+    {id:'n4-1',t:'て形：請・正在・可以',d:'て形是 N4 的核心，一次學會三種最常用的句型。',
+     v:[['待つ','まつ','等'],['書く','かく','寫'],['読む','よむ','讀'],['話す','はなす','說話'],['使う','つかう','使用'],['休む','やすむ','休息'],['教える','おしえる','教'],['借りる','かりる','借（入）']],
+     g:[{p:'〜てください',m:'請（做）〜',ex:'ちょっと待{ま}ってください。',zh:'請稍等。',q:'ここに名前{なまえ}を書{か}いて（　）。',t:'請在這裡寫名字。',a:'ください',d:['います','あげます','みます']},
+        {p:'〜ています',m:'正在〜／（持續的狀態）',ex:'今{いま}、本{ほん}を読{よ}んでいます。',zh:'我現在正在看書。',q:'弟{おとうと}は今{いま}、寝{ね}て（　）。',t:'弟弟現在正在睡覺。',a:'います',d:['ください','あります','おきます']},
+        {p:'〜てもいいです',m:'可以〜（許可）',ex:'ここで写真{しゃしん}を撮{と}ってもいいですか。',zh:'可以在這裡拍照嗎？',q:'この辞書{じしょ}を使{つか}って（　）いいですか。',t:'可以用這本字典嗎？',a:'も',d:['は','を','が']}],
+     k:[['待','タイ','ま(つ)','等待','招待','しょうたい','邀請'],['書','ショ','か(く)','寫','辞書','じしょ','字典'],['読','ドク','よ(む)','讀','読書','どくしょ','讀書'],['話','ワ','はな(す)','說話','電話','でんわ','電話'],['休','キュウ','やす(む)','休息','休日','きゅうじつ','假日']]},
+    {id:'n4-2',t:'能力與經驗',d:'會做什麼、做過什麼：可能形和〜たことがある。',
+     v:[['できる','できる','能、會'],['泳ぐ','およぐ','游泳'],['旅行','りょこう','旅行'],['経験','けいけん','經驗'],['運転','うんてん','開車'],['趣味','しゅみ','興趣'],['料理','りょうり','料理、做菜'],['一度','いちど','一次']],
+     g:[{p:'可能形（〜える／〜られる）',m:'能夠〜、會〜',ex:'私{わたし}は日本語{にほんご}が話{はな}せます。',zh:'我會說日語。',q:'私{わたし}は漢字{かんじ}が読{よ}（　）。',t:'我看得懂漢字。',a:'めます',d:['みます','まれます','ませます']},
+        {p:'〜たことがあります',m:'曾經〜過',ex:'富士山{ふじさん}に登{のぼ}ったことがあります。',zh:'我爬過富士山。',q:'日本{にほん}へ行{い}った（　）があります。',t:'我去過日本。',a:'こと',d:['もの','ところ','はず']},
+        {p:'〜ことができます',m:'能夠〜（較正式）',ex:'姉{あね}はピアノを弾{ひ}くことができます。',zh:'姊姊會彈鋼琴。',q:'ここで泳{およ}ぐことが（　）。',t:'這裡可以游泳。',a:'できます',d:['あります','します','なります']}],
+     k:[['旅','リョ','たび','旅行','旅館','りょかん','日式旅館'],['運','ウン','はこ(ぶ)','搬運、運氣','運動','うんどう','運動'],['料','リョウ','—','費用、材料','料金','りょうきん','費用'],['理','リ','—','道理','無理','むり','勉強、辦不到'],['度','ド','たび','次數、溫度','今度','こんど','下次']]},
+    {id:'n4-3',t:'給與收',d:'あげる・もらう・くれる，搞清楚東西從誰流向誰。',
+     v:[['あげる','あげる','給（別人）'],['もらう','もらう','收到'],['くれる','くれる','（別人）給我'],['贈り物','おくりもの','禮物'],['手紙','てがみ','信'],['誕生日','たんじょうび','生日'],['手伝う','てつだう','幫忙'],['貸す','かす','借（出）']],
+     g:[{p:'〜てくれる',m:'（別人）為我做〜',ex:'友達{ともだち}が引{ひ}っ越{こ}しを手伝{てつだ}ってくれました。',zh:'朋友幫我搬了家。',q:'母{はは}がお弁当{べんとう}を作{つく}って（　）。',t:'媽媽幫我做了便當。',a:'くれました',d:['あげました','さしあげました','ください']},
+        {p:'AはBに〜をあげる／もらう',m:'A 給 B／A 從 B 收到',ex:'私{わたし}は母{はは}に花{はな}をあげました。',zh:'我送了花給媽媽。',q:'私{わたし}は友達{ともだち}にプレゼントを（　）。',t:'我從朋友那裡收到了禮物。',a:'もらいました',d:['あげました','くれました','やりました']},
+        {p:'〜てもらえませんか',m:'可以請你〜嗎？（請求）',ex:'窓{まど}を開{あ}けてもらえませんか。',zh:'可以幫我開窗嗎？',q:'もう一度{いちど}言{い}って（　）。',t:'可以請你再說一次嗎？',a:'もらえませんか',d:['あげませんか','いませんか','しまいませんか']}],
+     k:[['手','シュ','て','手','切手','きって','郵票'],['紙','シ','かみ','紙','和紙','わし','日本和紙'],['物','ブツ・モツ','もの','東西','荷物','にもつ','行李'],['貸','タイ','か(す)','借出','賃貸','ちんたい','租賃'],['借','シャク','か(りる)','借入','借金','しゃっきん','債務']]},
+    {id:'n4-4',t:'如果・打算',d:'假設條件〜たら、〜ば，以及說出自己的打算。',
+     v:[['雨','あめ','雨'],['準備','じゅんび','準備'],['予定','よてい','預定'],['決める','きめる','決定'],['続ける','つづける','繼續'],['遅れる','おくれる','遲到、延誤'],['留学','りゅうがく','留學'],['試験','しけん','考試']],
+     g:[{p:'〜たら',m:'如果〜／〜之後',ex:'雨{あめ}が降{ふ}ったら、行{い}きません。',zh:'如果下雨就不去。',q:'駅{えき}に着{つ}い（　）、電話{でんわ}してください。',t:'到了車站之後請打電話給我。',a:'たら',d:['ても','ながら','ず']},
+        {p:'〜ば',m:'如果〜的話（假定）',ex:'安{やす}ければ買{か}います。',zh:'如果便宜就買。',q:'時間{じかん}があれ（　）、行{い}きます。',t:'如果有時間就去。',a:'ば',d:['と','たら','ても']},
+        {p:'〜ようと思います',m:'我打算〜（意向形）',ex:'来年{らいねん}、日本{にほん}へ留学{りゅうがく}しようと思{おも}います。',zh:'我打算明年去日本留學。',q:'今日{きょう}は早{はや}く寝{ね}（　）と思{おも}います。',t:'我打算今天早點睡。',a:'よう',d:['たい','ます','れる']}],
+     k:[['雨','ウ','あめ','雨','大雨','おおあめ','大雨'],['予','ヨ','—','預先','予約','よやく','預約'],['定','テイ','さだ(める)','決定、固定','定食','ていしょく','套餐'],['試','シ','ため(す)','嘗試','試合','しあい','比賽'],['験','ケン','—','檢驗','実験','じっけん','實驗']]},
+    {id:'n4-5',t:'推測與建議',d:'看起來〜、也許〜、最好〜：表達判斷與給建議。',
+     v:[['雪','ゆき','雪'],['天気','てんき','天氣'],['風邪','かぜ','感冒'],['熱','ねつ','發燒、熱度'],['薬','くすり','藥'],['病院','びょういん','醫院'],['必ず','かならず','一定'],['たぶん','たぶん','大概']],
+     g:[{p:'〜そうです（樣態）',m:'看起來〜、好像快要〜',ex:'雨{あめ}が降{ふ}りそうです。',zh:'看起來快下雨了。',q:'このケーキはおいし（　）です。',t:'這個蛋糕看起來很好吃。',a:'そう',d:['らしい','よう','みたい']},
+        {p:'〜かもしれません',m:'也許〜、可能〜',ex:'明日{あした}は雪{ゆき}かもしれません。',zh:'明天可能會下雪。',q:'彼{かれ}は来{こ}ない（　）。',t:'他或許不會來。',a:'かもしれません',d:['ことがあります','てください','たいです']},
+        {p:'〜たほうがいいです',m:'最好〜（建議）',ex:'早{はや}く寝{ね}たほうがいいですよ。',zh:'早點睡比較好喔。',q:'薬{くすり}を飲{の}んだ（　）がいいです。',t:'吃藥比較好。',a:'ほう',d:['こと','もの','ため']}],
+     k:[['雪','セツ','ゆき','雪','大雪','おおゆき','大雪'],['天','テン','あま','天','天国','てんごく','天堂'],['病','ビョウ','やまい','病','病気','びょうき','生病'],['院','イン','—','機構、院','入院','にゅういん','住院'],['薬','ヤク','くすり','藥','薬局','やっきょく','藥局']]}
+  ]},
+  n3:{name:'N3',title:'中級',desc:'能大致理解日常場景中的日語，開始讀較長的文章。',words:'約 3,750',kanji:'約 650',pass:'95/180',units:[
+    {id:'n3-1',t:'原因與目的',d:'為了〜、多虧〜、都怪〜：把原因和目的說清楚。',
+     v:[['原因','げんいん','原因'],['理由','りゆう','理由'],['結果','けっか','結果'],['目的','もくてき','目的'],['努力','どりょく','努力'],['成功','せいこう','成功'],['失敗','しっぱい','失敗'],['影響','えいきょう','影響']],
+     g:[{p:'〜ために',m:'為了〜（意志性的目的）',ex:'合格{ごうかく}するために、毎日{まいにち}勉強{べんきょう}しています。',zh:'為了考上，我每天都在念書。',q:'家{いえ}を買{か}う（　）、貯金{ちょきん}しています。',t:'為了買房子正在存錢。',a:'ために',d:['ように','のに','ので']},
+        {p:'〜ように',m:'為了能〜／為了不〜',ex:'忘{わす}れないように、メモします。',zh:'為了不忘記而做筆記。',q:'風邪{かぜ}をひかない（　）、手{て}を洗{あら}います。',t:'為了不感冒而洗手。',a:'ように',d:['ばかり','のに','まで']},
+        {p:'〜おかげで／〜せいで',m:'多虧〜（好結果）／都怪〜（壞結果）',ex:'先生{せんせい}のおかげで合格{ごうかく}できました。',zh:'多虧老師，我才考上了。',q:'雨{あめ}の（　）、試合{しあい}が中止{ちゅうし}になった。',t:'都怪下雨，比賽取消了。',a:'せいで',d:['おかげで','ように','ばかりで']}],
+     k:[['原','ゲン','はら','原本、原野','原料','げんりょう','原料'],['因','イン','よ(る)','原因','要因','よういん','主要原因'],['結','ケツ','むす(ぶ)','結、綁','結婚','けっこん','結婚'],['果','カ','は(たす)','結果、果實','果物','くだもの','水果'],['努','ド','つと(める)','努力','努力','どりょく','努力']]},
+    {id:'n3-2',t:'被動與使役',d:'被〜、讓〜、被逼著〜：N3 必考的動詞變化。',
+     v:[['叱る','しかる','責罵'],['褒める','ほめる','稱讚'],['頼む','たのむ','拜託'],['盗む','ぬすむ','偷'],['踏む','ふむ','踩'],['許す','ゆるす','允許、原諒'],['命令','めいれい','命令'],['部下','ぶか','部下']],
+     g:[{p:'受身形（〜れる／〜られる）',m:'被〜',ex:'先生{せんせい}に褒{ほ}められました。',zh:'被老師稱讚了。',q:'財布{さいふ}を盗{ぬす}ま（　）。',t:'錢包被偷了。',a:'れました',d:['せました','せられました','ないました']},
+        {p:'使役形（〜せる／〜させる）',m:'讓〜、叫〜做',ex:'母{はは}は子供{こども}に野菜{やさい}を食{た}べさせました。',zh:'媽媽讓小孩吃蔬菜。',q:'先生{せんせい}は学生{がくせい}に作文{さくぶん}を書{か}か（　）。',t:'老師叫學生寫作文。',a:'せました',d:['れました','ないました','えました']},
+        {p:'使役受身（〜させられる）',m:'被逼著〜',ex:'部長{ぶちょう}に残業{ざんぎょう}させられました。',zh:'被部長逼著加班。',q:'子供{こども}のころ、母{はは}に野菜{やさい}を食{た}べ（　）。',t:'小時候被媽媽逼著吃蔬菜。',a:'させられました',d:['られました','させました','ました']}],
+     k:[['命','メイ','いのち','生命、命令','生命','せいめい','生命'],['令','レイ','—','命令','令和','れいわ','令和（年號）'],['部','ブ','—','部分、部門','全部','ぜんぶ','全部'],['許','キョ','ゆる(す)','允許','免許','めんきょ','執照'],['頼','ライ','たの(む)・たよ(る)','依賴、拜託','信頼','しんらい','信賴']]},
+    {id:'n3-3',t:'聽說・好像',d:'らしい、ようだ、そうだ：區分傳聞與推測。',
+     v:[['噂','うわさ','傳聞、八卦'],['様子','ようす','樣子'],['確か','たしか','確實、好像是'],['実は','じつは','其實'],['まるで','まるで','簡直像'],['どうやら','どうやら','看來'],['本物','ほんもの','真貨'],['偽物','にせもの','假貨']],
+     g:[{p:'〜らしい',m:'聽說〜、似乎〜（有根據的推測）',ex:'あの店{みせ}はおいしいらしいです。',zh:'聽說那家店很好吃。',q:'田中{たなか}さんは来月{らいげつ}結婚{けっこん}する（　）。',t:'聽說田中先生下個月要結婚。',a:'らしい',d:['ように','ために','ばかり']},
+        {p:'〜ようだ／〜みたいだ',m:'好像〜、簡直像〜（比喻）',ex:'まるで夢{ゆめ}のようです。',zh:'簡直像夢一樣。',q:'彼女{かのじょ}はまるで子供{こども}（　）。',t:'她簡直像個小孩。',a:'みたいだ',d:['そうだ','はずだ','ばかりだ']},
+        {p:'〜によると〜そうだ',m:'根據〜，聽說〜（傳聞）',ex:'天気予報{てんきよほう}によると、明日{あした}は雨{あめ}だそうです。',zh:'根據天氣預報，聽說明天會下雨。',q:'ニュース（　）、事故{じこ}があったそうです。',t:'根據新聞，聽說發生了事故。',a:'によると',d:['について','に対して','として']}],
+     k:[['様','ヨウ','さま','樣子、～先生（尊稱）','お客様','おきゃくさま','客人（尊稱）'],['確','カク','たし(か)','確實','確認','かくにん','確認'],['実','ジツ','み','實際、果實','事実','じじつ','事實'],['夢','ム','ゆめ','夢','悪夢','あくむ','惡夢'],['報','ホウ','—','報告、消息','予報','よほう','預報']]},
+    {id:'n3-4',t:'敬語入門',d:'尊敬語抬高對方、謙讓語放低自己，職場與服務業必備。',
+     v:[['いらっしゃる','いらっしゃる','去、來、在（尊敬）'],['おっしゃる','おっしゃる','說（尊敬）'],['召し上がる','めしあがる','吃、喝（尊敬）'],['ご覧になる','ごらんになる','看（尊敬）'],['申す','もうす','說（謙讓）'],['伺う','うかがう','拜訪、請教（謙讓）'],['参る','まいる','去、來（謙讓）'],['いただく','いただく','收下、吃（謙讓）']],
+     g:[{p:'お〜になる',m:'尊敬語：抬高對方的動作',ex:'社長{しゃちょう}がお帰{かえ}りになりました。',zh:'社長回去了。',q:'先生{せんせい}はもうお帰{かえ}りに（　）。',t:'老師已經回去了（尊敬）。',a:'なりました',d:['しました','いたしました','ありました']},
+        {p:'お〜する',m:'謙讓語：放低自己的動作',ex:'お荷物{にもつ}をお持{も}ちします。',zh:'我來幫您拿行李。',q:'駅{えき}までお送{おく}り（　）。',t:'我送您到車站（謙讓）。',a:'します',d:['になります','なさいます','ください']},
+        {p:'〜ていただけませんか',m:'能否請您〜（很有禮貌的請求）',ex:'少々{しょうしょう}お待{ま}ちいただけませんか。',zh:'可以請您稍等一下嗎？',q:'書{か}き方{かた}を教{おし}えて（　）。',t:'可以請您教我寫法嗎？',a:'いただけませんか',d:['さしあげませんか','おりませんか','まいりませんか']}],
+     k:[['申','シン','もう(す)','說（謙讓）、申請','申請','しんせい','申請'],['参','サン','まい(る)','參加、去（謙讓）','参加','さんか','參加'],['敬','ケイ','うやま(う)','尊敬','敬語','けいご','敬語'],['語','ゴ','かた(る)','語言','日本語','にほんご','日語'],['客','キャク','—','客人','客室','きゃくしつ','客房']]},
+    {id:'n3-5',t:'文章的轉折與判斷',d:'讀解常見的接續詞，加上わけだ、ばかり、はずだ。',
+     v:[['しかし','しかし','但是'],['それで','それで','所以'],['ところが','ところが','然而（出乎意料）'],['つまり','つまり','也就是說'],['例えば','たとえば','例如'],['一方','いっぽう','另一方面'],['特に','とくに','特別是'],['逆に','ぎゃくに','反過來']],
+     g:[{p:'〜わけだ',m:'難怪〜、當然〜',ex:'雨{あめ}が降{ふ}ったから、道{みち}が濡{ぬ}れているわけだ。',zh:'下過雨，難怪路是濕的。',q:'十年{じゅうねん}も住{す}んでいたなら、日本語{にほんご}が上手{じょうず}な（　）だ。',t:'住了十年的話，難怪日語很好。',a:'わけ',d:['ばかり','ため','まま']},
+        {p:'〜ばかり',m:'光是〜、淨是〜',ex:'弟{おとうと}はゲームばかりしています。',zh:'弟弟光是在打電動。',q:'彼{かれ}は肉{にく}（　）食{た}べている。',t:'他光吃肉。',a:'ばかり',d:['わけ','はず','ため']},
+        {p:'〜はずだ',m:'應該〜（有根據的判斷）',ex:'彼{かれ}はもう着{つ}いたはずです。',zh:'他應該已經到了。',q:'荷物{にもつ}は明日{あした}届{とど}く（　）です。',t:'行李應該明天會到。',a:'はず',d:['ばかり','まま','こと']}],
+     k:[['例','レイ','たと(える)','例子','例文','れいぶん','例句'],['特','トク','—','特別','特急','とっきゅう','特快車'],['逆','ギャク','さか','相反','逆転','ぎゃくてん','逆轉'],['接','セツ','つ(ぐ)','接觸、連接','直接','ちょくせつ','直接'],['続','ゾク','つづ(く)','繼續','連続','れんぞく','連續']]}
+  ]}
+};
+const HIRA='あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもや・ゆ・よらりるれろわ・・・をん・・・・'.split('');
+const KATA='アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤ・ユ・ヨラリルレロワ・・・ヲン・・・・'.split('');
+const ROMA=['a','i','u','e','o','ka','ki','ku','ke','ko','sa','shi','su','se','so','ta','chi','tsu','te','to','na','ni','nu','ne','no','ha','hi','fu','he','ho','ma','mi','mu','me','mo','ya','','yu','','yo','ra','ri','ru','re','ro','wa','','','','wo','n','','','',''];
+
+/* ---------- 狀態與儲存 ---------- */
+const KEY='jlpt-ladder-v1';
+let P={known:{},best:{}}, S={level:'n5',unit:{n5:0,n4:0,n3:0},tab:'vocab',furi:true,kanaSet:'hira',kanaTab:'chart'};
+try{const d=JSON.parse(localStorage.getItem(KEY));if(d){P=Object.assign(P,d.P||{});S=Object.assign(S,d.S||{});}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({P,S}))}catch(e){}}
+let Q=null; // 進行中的測驗
+
+/* ---------- 工具 ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const plain=s=>String(s).replace(/\{[^}]+\}/g,'');
+function ruby(s){return esc(s).replace(/([々一-鿿ヶ]+)\{([^}]+)\}/g,(m,k,r)=>S.furi?`<ruby>${k}<rt>${r}</rt></ruby>`:k)}
+function word(w,r){return (S.furi&&w!==r)?`<ruby>${esc(w)}<rt>${esc(r)}</rt></ruby>`:esc(w)}
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const canSpeak='speechSynthesis' in window;
+function speak(t){if(!canSpeak)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ja-JP';u.rate=.85;const v=speechSynthesis.getVoices().find(v=>/^ja/i.test(v.lang));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+const SPK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+const spkBtn=t=>canSpeak?`<button class="icon-btn" data-speak="${esc(t)}" aria-label="播放發音">${SPK}</button>`:'';
+const best=id=>P.best[id]||0;
+function nextIdx(lv){const u=LEVELS[lv].units;const i=u.findIndex(x=>best(x.id)<80);return i}
+
+/* ---------- 畫面 ---------- */
+function render(){
+  document.querySelectorAll('#levelSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.level===S.level));
+  $('#furi').checked=S.furi;
+  if(S.level==='kana'){renderKanaAside();renderKana();}
+  else{renderAside();renderUnit();}
+  save();
+}
+
+function renderAside(){
+  const L=LEVELS[S.level], n=nextIdx(S.level), done=L.units.filter(u=>best(u.id)>=80).length, cur=S.unit[S.level];
+  $('#aside').innerHTML=`
+  <div class="lv"><div class="lv-badge">${L.name}</div><div><h2>${L.name}・${L.title}</h2><p>${L.desc}</p></div></div>
+  <dl class="facts"><div><dt>單字量</dt><dd>${L.words}</dd></div><div><dt>漢字</dt><dd>${L.kanji}</dd></div><div><dt>及格分</dt><dd>${L.pass}</dd></div></dl>
+  <div><div class="bar-label"><span>已通過的段落</span><span>${done} / ${L.units.length}</span></div><div class="bar"><span style="width:${done/L.units.length*100}%"></span></div></div>
+  <ol class="ladder">${L.units.map((u,i)=>{
+    const b=best(u.id), cls=b>=80?'done':(i===n?'next':''), chip=b>=80?`<span class="chip ok">通過 ${b}</span>`:b>0?`<span class="chip try">最佳 ${b}</span>`:(i===n?'<span class="chip try">下一段</span>':'<span class="chip new">未開始</span>');
+    return `<li><button class="step ${cls}" data-unit="${i}" aria-current="${i===cur}"><span class="node">${b>=80?'✓':i+1}</span><span><span class="step-n">第 ${i+1} 段</span><span class="step-t">${esc(u.t)}</span></span>${chip}</button></li>`}).join('')}</ol>
+  <div class="plan"><h3>每天這樣讀（約 25 分鐘）</h3><ol><li>單字 10 分鐘：聽發音、念出聲，記住的打勾</li><li>文法 10 分鐘：把例句念三遍</li><li>漢字 + 測驗 5 分鐘：80 分以上再往下一段</li></ol></div>
+  <p class="note">單字量與漢字數為常見參考值，非官方公布數字。及格分為總分門檻，各科另有最低分數。台灣每年 7 月、12 月各考一次。</p>`;
+}
+
+function renderUnit(){
+  const L=LEVELS[S.level], i=S.unit[S.level], u=L.units[i];
+  const known=u.v.filter((_,j)=>P.known[u.id+'-'+j]).length;
+  const tabs=[['vocab','單字',`${known}/${u.v.length}`],['grammar','文法',u.g.length],['kanji','漢字',u.k.length],['quiz','測驗',best(u.id)?best(u.id)+'分':'']];
+  let body='';
+  if(S.tab==='vocab'){
+    body=`<div class="panel-top"><span>先按喇叭聽發音，跟著念；記住了就按「記住了」。</span><span>已記住 ${known} / ${u.v.length}</span></div>
+    <div class="vlist">${u.v.map((v,j)=>{const k=!!P.known[u.id+'-'+j];return `<div class="vrow ${k?'known':''}"><div><div class="vw">${word(v[0],v[1])}</div>${!S.furi&&v[0]!==v[1]?`<div class="vr">${esc(v[1])}</div>`:''}</div><div class="vm">${esc(v[2])}</div>${spkBtn(v[1])}<button class="know" data-know="${u.id}-${j}" aria-pressed="${k}">${k?'✓ 記住了':'記住了'}</button></div>`}).join('')}</div>`;
+  }else if(S.tab==='grammar'){
+    body=`<div class="gcards">${u.g.map(g=>`<div class="gcard"><div class="gp">${esc(g.p)}</div><div class="gm">${esc(g.m)}</div><div class="gex">${spkBtn(plain(g.ex))}<div><div class="jp">${ruby(g.ex)}</div><div class="zh">${esc(g.zh)}</div></div></div></div>`).join('')}</div>`;
+  }else if(S.tab==='kanji'){
+    body=`<div class="kgrid">${u.k.map(k=>`<div class="kcard"><div class="kc">${k[0]}</div><div class="krow"><b>音讀</b><span>${esc(k[1])}</span></div><div class="krow"><b>訓讀</b><span>${esc(k[2])}</span></div><div class="krow"><b>意思</b><span>${esc(k[3])}</span></div><div class="kex"><div style="display:flex;gap:8px;align-items:center;justify-content:space-between"><span class="jp">${word(k[4],k[5])}</span>${spkBtn(k[5])}</div><div style="color:var(--muted)">${esc(k[6])}${S.furi?'':'・'+esc(k[5])}</div></div></div>`).join('')}</div>`;
+  }else body=quizHTML(u);
+  $('#main').innerHTML=`<div class="unit-head"><p class="eyebrow">${L.name}・第 ${i+1} 段</p><h2>${esc(u.t)}</h2><p class="desc">${esc(u.d)}</p></div>
+  <div class="tabs" role="tablist">${tabs.map(t=>`<button role="tab" data-tab="${t[0]}" aria-selected="${S.tab===t[0]}">${t[1]}<small>${t[2]}</small></button>`).join('')}</div>${body}`;
+}
+
+/* ---------- 測驗 ---------- */
+function buildQuiz(u){
+  const pool=LEVELS[S.level].units, allV=pool.flatMap(x=>x.v), allK=pool.flatMap(x=>x.k);
+  const pick=(arr,correct,n=3)=>shuffle([...new Set(arr.filter(x=>x!==correct))]).slice(0,n);
+  const vs=shuffle(u.v), qs=[];
+  vs.slice(0,5).forEach(v=>qs.push({kind:'單字・選意思',jpPrompt:word(v[0],v[1]),speak:v[1],a:v[2],opts:shuffle([v[2],...pick(allV.map(x=>x[2]),v[2])]),optJp:false,note:`${v[0]}（${v[1]}）＝${v[2]}`}));
+  vs.slice(5,7).forEach(v=>qs.push({kind:'單字・選日文',zhPrompt:v[2],a:v[0],opts:shuffle([v[0],...pick(allV.map(x=>x[0]),v[0])]),optJp:true,note:`${v[2]}＝${v[0]}（${v[1]}）`}));
+  shuffle(u.k).slice(0,3).forEach(k=>qs.push({kind:'漢字・選讀音',jpPrompt:esc(k[4]),speak:k[5],hint:`意思：${k[6]}`,a:k[5],opts:shuffle([k[5],...pick(allK.map(x=>x[5]),k[5])]),optJp:true,note:`${k[4]} 讀作 ${k[5]}`}));
+  shuffle(u.g).forEach(g=>qs.push({kind:'文法・填空',jpPrompt:ruby(g.q),hint:g.t,a:g.a,opts:shuffle([g.a,...g.d]),optJp:true,rubyOpts:true,note:`句型：${g.p}（${g.m}）`}));
+  return {uid:u.id,qs,i:0,score:0,chosen:null,done:false};
+}
+function quizHTML(u){
+  if(!Q||Q.uid!==u.id){
+    const b=best(u.id);
+    return `<div class="quiz intro"><h3>第 ${S.unit[S.level]+1} 段測驗</h3><ul><li>單字、漢字、文法混合，共約 ${u.g.length+10} 題</li><li>80 分以上算通過，會在左邊的階梯打勾</li><li>可以重考，系統記錄最高分${b?`（目前最佳 ${b} 分）`:''}</li></ul><button class="btn" data-act="start">開始測驗</button></div>`;
+  }
+  if(Q.done){
+    const pct=Math.round(Q.score/Q.qs.length*100), ok=pct>=80, n=nextIdx(S.level);
+    return `<div class="quiz result"><div class="score">${pct}<small> 分</small></div><p class="verdict ${ok?'ok':'no'}">${ok?'通過！這一段完成了':'還差一點，再複習一下'}</p><p>答對 ${Q.score} / ${Q.qs.length} 題</p><div class="row"><button class="btn ghost" data-act="start">再考一次</button>${ok&&n>=0?`<button class="btn" data-act="go" data-to="${n}">前往第 ${n+1} 段</button>`:ok&&n<0?`<button class="btn" data-act="nextlv">這一級全部通過 ✓</button>`:`<button class="btn" data-tab="vocab">回去複習單字</button>`}</div></div>`;
+  }
+  const q=Q.qs[Q.i], ans=Q.chosen!==null;
+  const optHTML=q.opts.map((o,j)=>{let c='opt'+(q.optJp?' jp':'');if(ans){if(o===q.a)c+=' right';else if(j===Q.chosen)c+=' wrong';}return `<button class="${c}" data-opt="${j}" ${ans?'disabled':''}>${q.rubyOpts?ruby(o):esc(o)}</button>`}).join('');
+  const right=ans&&q.opts[Q.chosen]===q.a;
+  return `<div class="quiz"><div class="qmeta"><span>第 ${Q.i+1} / ${Q.qs.length} 題</span><span>答對 ${Q.score}</span></div><div class="qprog"><span style="width:${Q.i/Q.qs.length*100}%"></span></div>
+  <p class="qkind">${q.kind}</p>
+  ${q.zhPrompt?`<p class="qprompt zhp">${esc(q.zhPrompt)}</p>`:`<div style="display:flex;gap:12px;align-items:center"><p class="qprompt">${q.jpPrompt}</p>${q.speak&&ans?spkBtn(q.speak):''}</div>`}
+  ${q.hint?`<p class="qhint">${esc(q.hint)}</p>`:'<p class="qhint">&nbsp;</p>'}
+  <div class="opts">${optHTML}</div>
+  ${ans?`<div class="feedback"><p><span class="${right?'good':'bad'}">${right?'答對了':'答錯了'}</span>　${ruby(q.note)}</p><button class="btn" data-act="next">${Q.i+1<Q.qs.length?'下一題':'看結果'}</button></div>`:''}</div>`;
+}
+
+/* ---------- 假名 ---------- */
+function renderKanaAside(){
+  $('#aside').innerHTML=`<div class="lv"><div class="lv-badge jp">あ</div><div><h2>假名複習</h2><p>你已經會五十音了，正式進 N5 前先確認平假名、片假名都能秒認。</p></div></div>
+  <div class="plan"><h3>建議</h3><ol><li>點表格裡的假名可以聽發音</li><li>平假名、片假名測驗各拿 9 題以上再往 N5</li><li>濁音（が、ざ…）和拗音（きゃ…）會在單字中自然熟悉</li></ol></div>
+  <button class="btn" data-level="n5">開始 N5 第 1 段</button>`;
+}
+function renderKana(){
+  const set=S.kanaSet==='hira'?HIRA:KATA, name=S.kanaSet==='hira'?'平假名':'片假名';
+  let body='';
+  if(S.kanaTab==='chart'){
+    body=`<div class="kana-chart">${set.map((k,j)=>k==='・'?'<div class="kana blank"></div>':`<button class="kana" data-speak="${k}" aria-label="${k} ${ROMA[j]}"><span class="k">${k}</span><span class="r">${ROMA[j]}</span></button>`).join('')}</div>`;
+  }else body=kanaQuizHTML(set);
+  $('#main').innerHTML=`<div class="unit-head"><p class="eyebrow">暖身</p><h2>${name}</h2><p class="desc">共 46 個基本假名。看表格熟悉，再用測驗確認。</p></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-kset="hira" aria-selected="${S.kanaSet==='hira'}">平假名</button>
+    <button role="tab" data-kset="kata" aria-selected="${S.kanaSet==='kata'}">片假名</button>
+    <span style="flex:1"></span>
+    <button role="tab" data-ktab="chart" aria-selected="${S.kanaTab==='chart'}">表格</button>
+    <button role="tab" data-ktab="quiz" aria-selected="${S.kanaTab==='quiz'}">測驗</button>
+  </div>${body}`;
+}
+function kanaQuizHTML(set){
+  const id='kana-'+S.kanaSet;
+  if(!Q||Q.uid!==id){
+    const idx=set.map((k,j)=>k==='・'?-1:j).filter(j=>j>=0), allR=idx.map(j=>ROMA[j]);
+    const qs=shuffle(idx).slice(0,10).map(j=>({kind:'選出正確的羅馬拼音',jpPrompt:set[j],speak:set[j],a:ROMA[j],opts:shuffle([ROMA[j],...shuffle(allR.filter(r=>r!==ROMA[j])).slice(0,3)]),note:`${set[j]} ＝ ${ROMA[j]}`}));
+    Q={uid:id,qs,i:0,score:0,chosen:null,done:false};
+  }
+  if(Q.done){const ok=Q.score>=9;return `<div class="quiz result"><div class="score">${Q.score}<small> / 10</small></div><p class="verdict ${ok?'ok':'no'}">${ok?'很熟了，可以進 N5':'再看一次表格吧'}</p><p>&nbsp;</p><div class="row"><button class="btn ghost" data-act="kretry">再考一次</button>${ok?'<button class="btn" data-level="n5">前往 N5</button>':'<button class="btn" data-ktab="chart">看表格</button>'}</div></div>`}
+  return quizBody();
+}
+function quizBody(){
+  const q=Q.qs[Q.i], ans=Q.chosen!==null, right=ans&&q.opts[Q.chosen]===q.a;
+  return `<div class="quiz"><div class="qmeta"><span>第 ${Q.i+1} / ${Q.qs.length} 題</span><span>答對 ${Q.score}</span></div><div class="qprog"><span style="width:${Q.i/Q.qs.length*100}%"></span></div>
+  <p class="qkind">${q.kind}</p><div style="display:flex;gap:12px;align-items:center"><p class="qprompt" style="font-size:56px">${q.jpPrompt}</p>${ans?spkBtn(q.speak):''}</div>
+  <div class="opts">${q.opts.map((o,j)=>{let c='opt';if(ans){if(o===q.a)c+=' right';else if(j===Q.chosen)c+=' wrong'}return `<button class="${c}" data-opt="${j}" ${ans?'disabled':''}>${o}</button>`}).join('')}</div>
+  ${ans?`<div class="feedback"><p><span class="${right?'good':'bad'}">${right?'答對了':'答錯了'}</span>　${q.note}</p><button class="btn" data-act="next">${Q.i+1<Q.qs.length?'下一題':'看結果'}</button></div>`:''}</div>`;
+}
+
+/* ---------- 事件 ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t)return;
+  const d=t.dataset;
+  if(d.speak){speak(d.speak);return}
+  if(d.level){S.level=d.level;Q=null;if(d.level!=='kana'){S.tab='vocab'}render();window.scrollTo({top:0});return}
+  if(d.unit!==undefined){S.unit[S.level]=+d.unit;S.tab='vocab';Q=null;render();if(innerWidth<=860)$('#main').scrollIntoView({behavior:'smooth'});return}
+  if(d.tab){S.tab=d.tab;render();return}
+  if(d.know){P.known[d.know]=!P.known[d.know];if(!P.known[d.know])delete P.known[d.know];render();return}
+  if(d.kset){S.kanaSet=d.kset;Q=null;render();return}
+  if(d.ktab){S.kanaTab=d.ktab;Q=null;render();return}
+  if(d.opt!==undefined&&Q&&Q.chosen===null){
+    Q.chosen=+d.opt;const q=Q.qs[Q.i];
+    if(q.opts[Q.chosen]===q.a)Q.score++;
+    if(q.speak)speak(plain(q.speak));
+    render();return}
+  if(d.act==='start'){Q=buildQuiz(LEVELS[S.level].units[S.unit[S.level]]);render();return}
+  if(d.act==='kretry'){Q=null;render();return}
+  if(d.act==='next'){
+    Q.i++;Q.chosen=null;
+    if(Q.i>=Q.qs.length){Q.done=true;Q.i=Q.qs.length-1;
+      if(!Q.uid.startsWith('kana')){const pct=Math.round(Q.score/Q.qs.length*100);if(pct>(P.best[Q.uid]||0))P.best[Q.uid]=pct;}}
+    render();return}
+  if(d.act==='go'){S.unit[S.level]=+d.to;S.tab='vocab';Q=null;render();window.scrollTo({top:0});return}
+  if(d.act==='nextlv'){const nx={n5:'n4',n4:'n3',n3:'n3'}[S.level];S.level=nx;S.tab='vocab';Q=null;render();window.scrollTo({top:0});return}
+});
+$('#furi').addEventListener('change',e=>{S.furi=e.target.checked;render()});
+if(canSpeak)try{speechSynthesis.getVoices();speechSynthesis.onvoiceschanged=()=>{}}catch(e){}
+render();
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
